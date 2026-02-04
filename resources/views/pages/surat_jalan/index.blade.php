@@ -121,6 +121,15 @@
 
                         <hr>
 
+                        <div id="mapSection" class="d-none">
+                            <h6 class="mb-2">Lokasi Terakhir (Map)</h6>
+                            <div class="border rounded overflow-hidden">
+                                <div id="mapLast"></div>
+                            </div>
+                            <div class="small text-muted mt-2" id="mapHint">Belum ada lokasi.</div>
+                            <hr>
+                        </div>
+
                         <h6 class="mb-2">Tracking Logs (terbaru)</h6>
                         <div class="table-responsive">
                             <table class="table table-sm table-bordered">
@@ -385,6 +394,60 @@
                 });
             });
 
+            function resetMap() {
+                if (!map) return;
+
+                // close popup kalau ada
+                if (marker) {
+                    marker.closePopup?.();
+                    map.removeLayer(marker);
+                    marker = null;
+                }
+
+                // balik ke default
+                map.setView([-2.5, 118.0], 4);
+                setTimeout(() => map.invalidateSize(), 150);
+            }
+
+            let map = null;
+            let marker = null;
+
+            function initMapIfNeeded() {
+                if (map) return;
+
+                map = L.map('mapLast', {
+                    zoomControl: true
+                });
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; OpenStreetMap'
+                }).addTo(map);
+
+                // default view (Indonesia)
+                map.setView([-2.5, 118.0], 4);
+            }
+
+            function setMapLocation(lat, lng, label) {
+                initMapIfNeeded();
+
+                const ll = [lat, lng];
+                map.setView(ll, 16);
+
+                if (!marker) {
+                    marker = L.marker(ll).addTo(map);
+                } else {
+                    marker.setLatLng(ll);
+                }
+
+                if (label) marker.bindPopup(label);
+
+                // ⚠️ Penting: map di dalam modal butuh invalidateSize
+                setTimeout(() => map.invalidateSize(), 150);
+            }
+
+            document.getElementById('modalDetail').addEventListener('shown.bs.modal', function() {
+                if (map) setTimeout(() => map.invalidateSize(), 150);
+            });
 
             // Detail modal (server-side table => pakai event delegation)
             $('#btnDetail').on('click', function() {
@@ -414,6 +477,10 @@
                 $('#dQrImg').addClass('d-none').attr('src', '');
                 $('#dQr').empty();
                 $('#dQrFallback').addClass('d-none');
+
+                $('#mapSection').addClass('d-none');
+                $('#mapHint').text('Loading lokasi...');
+                resetMap();
                 new bootstrap.Modal('#modalDetail').show();
 
                 $.ajax({
@@ -473,6 +540,33 @@
                             $('#dQrFallback').removeClass('d-none');
                         }
 
+                        // ====== MAP: lokasi terakhir ======
+                        if (d.tracking_logs && d.tracking_logs.length) {
+                            const last = d.tracking_logs[0];
+                            const lat = parseFloat(last.latitude);
+                            const lng = parseFloat(last.longitude);
+
+                            if (!isNaN(lat) && !isNaN(lng)) {
+                                $('#mapSection').removeClass('d-none'); // tampilkan map
+
+                                initMapIfNeeded();
+
+                                const label = `
+                                    <div class="p-title">${d.kode}</div>
+                                    <div class="p-sub">${last.scanned_at ?? '-'}</div>
+                                `;
+
+                                $('#mapHint').text(`Lat: ${lat}, Lng: ${lng}`);
+                                setMapLocation(lat, lng, label);
+                            } else {
+                                // koordinat invalid => tetep hide map
+                                $('#mapSection').addClass('d-none');
+                            }
+                        } else {
+                            // no logs => hide map
+                            $('#mapSection').addClass('d-none');
+                        }
+
                         $('#detailLoading').addClass('d-none');
                         $('#detailContent').removeClass('d-none');
                     },
@@ -507,7 +601,7 @@
                         if (!res.ok) {
                             $('#proofMsg').html(
                                 '<div class="alert alert-danger py-2 mb-0">Gagal upload.</div>'
-                                );
+                            );
                             return;
                         }
 
@@ -527,7 +621,7 @@
 
                         $('#proofMsg').html(
                             '<div class="alert alert-success py-2 mb-0">Upload berhasil ✅</div>'
-                            );
+                        );
 
                         // reload datatable kalau ada (di halaman index)
                         if (window.sjTable) window.sjTable.ajax.reload(null, false);
@@ -547,7 +641,6 @@
                     }
                 });
             });
-
         });
     </script>
 @endpush

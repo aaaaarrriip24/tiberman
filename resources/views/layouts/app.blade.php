@@ -25,6 +25,44 @@
     <!-- QR generator (no PHP extension needed) -->
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <style>
+        #mapLast {
+            height: 260px;
+            width: 100%;
+            border-radius: 12px;
+        }
+
+        /* Rapihin popup */
+        .leaflet-popup-content-wrapper {
+            border-radius: 12px;
+            padding: 6px 8px;
+        }
+
+        .leaflet-popup-content {
+            margin: 6px 8px;
+            font-size: 12px;
+            line-height: 1.2;
+            max-width: 180px;
+        }
+
+        .leaflet-popup-content .p-title {
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .leaflet-popup-content .p-sub {
+            color: #6c757d;
+        }
+
+        .leaflet-popup-close-button {
+            width: 28px !important;
+            height: 28px !important;
+            font-size: 18px !important;
+            line-height: 28px !important;
+        }
+    </style>
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     @stack('styles')
@@ -105,6 +143,8 @@
     <script src="https://cdn.datatables.net/responsive/3.0.2/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/3.0.2/js/responsive.bootstrap5.min.js"></script>
 
+    <!-- Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     @stack('scripts')
 </body>
 </html>
