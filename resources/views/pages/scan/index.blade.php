@@ -434,6 +434,16 @@
                     success: function(res) {
                         if (!res.ok) return setMsg('danger', 'Gagal update lokasi.');
 
+                        if (res.suspect) {
+                            Swal.fire({
+                            icon: 'warning',
+                            title: 'Lokasi mencurigakan',
+                            html: (res.reasons || []).map(r => `• ${r}`).join('<br>') || 'Indikasi Fake GPS',
+                            });
+                        } else {
+                            Swal.fire({ icon:'success', title:'Berhasil', text: res.message ?? 'Scan OK' });
+                        }
+                        
                         $('#scanResultBox').removeClass('d-none');
                         $('#rKode').text(res.kode);
 
@@ -447,7 +457,15 @@
                         setMsg('success', 'Lokasi berhasil diupdate ✅');
                     },
                     error: function(xhr) {
-                        setMsg('danger', 'Error: ' + (xhr.responseJSON?.message ?? 'Unknown'));
+                        if (xhr.status === 422 && xhr.responseJSON?.suspect) {
+                            Swal.fire({
+                            icon: 'error',
+                            title: 'Ditolak',
+                            html: (xhr.responseJSON.reasons || []).map(r => `• ${r}`).join('<br>'),
+                            });
+                            return;
+                        }
+                        Swal.fire({ icon:'error', title:'Error', text: xhr.responseJSON?.message ?? 'Unknown' });
                     }
                 });
             });
