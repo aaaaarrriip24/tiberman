@@ -64,3 +64,20 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Run
+Creator Login
+email = ficuqiv@mailinator.com
+password = 12341234
+
+1. Buat Surat Jalan 
+2. Edit Surat Jalan
+3. Detail Surat Jalan
+
+Admin/Superuser Login
+email = fygowec@mailinator.com
+password = 12341234
+
+1. Scan QR Code Surat Jalan
+2. Update Tracking Log
+3. Upload Bukti Serah Terima
