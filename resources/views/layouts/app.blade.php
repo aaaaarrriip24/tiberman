@@ -100,7 +100,32 @@
                                 </li>
                             @endif
                         @else
-                            <a class="nav-link" href="{{ route('sj.index') }}">Surat Jalan</a>
+                            @auth
+                                @php
+                                    $role = auth()->user()->role; // creator|admin|superuser
+                                @endphp
+
+                                {{-- Creator: Surat Jalan --}}
+                                @if(in_array($role, ['creator','superuser']))
+                                    <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('sj.*') ? 'active' : '' }}"
+                                        href="{{ route('sj.index') }}">
+                                        Surat Jalan
+                                    </a>
+                                    </li>
+                                @endif
+
+                                {{-- Admin: Scan --}}
+                                @if(in_array($role, ['admin','superuser']))
+                                    <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('scan.*') ? 'active' : '' }}"
+                                        href="{{ route('scan.index') }}">
+                                        Scan
+                                    </a>
+                                    </li>
+                                @endif
+                                @endauth
+
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     {{ Auth::user()->name }}
